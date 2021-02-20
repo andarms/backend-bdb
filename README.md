@@ -1,5 +1,7 @@
 # Project Backend
 
+![CircleCI](https://circleci.com/gh/andarms/programming-skills-bdb.svg?style=svg&circle-token=bc58e9fab641f2e5ff17baab33b45c3c9d3a716f)
+
 ## Run Project
 
 - use [.env.sample](.env.sample) to set environment variables and create proper `.env` file
