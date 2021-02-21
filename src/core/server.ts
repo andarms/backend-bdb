@@ -1,5 +1,6 @@
 import { OutgoingHttpHeaders } from 'http2';
 
+import cors from 'cors';
 import express from 'express';
 import { Express } from 'express-serve-static-core';
 
@@ -7,6 +8,7 @@ import { apiRoutes } from '../api/router';
 
 async function createServer(): Promise<Express> {
   const server = express();
+  server.use(cors());
   server.use(express.json());
   server.use('/api', apiRoutes());
 
