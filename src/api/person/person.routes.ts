@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express';
 
 import { HttpStatuses, writeJsonResponse } from '../../core/server';
-import { Person, PersonModel } from './person.model';
+import { Person, PersonModel, PersonRelativesIds } from './person.model';
 
 async function findAllPersons(_: Request, response: Response): Promise<void> {
   const personModel = new PersonModel();
@@ -25,8 +25,19 @@ async function createPerson(request: Request, response: Response): Promise<void>
   const personModel = new PersonModel();
   try {
     await personModel.create(person);
-  } catch (error) {
-    return writeJsonResponse(response, HttpStatuses.BadRequest, error);
+  } catch (errors) {
+    return writeJsonResponse(response, HttpStatuses.BadRequest, errors);
+  }
+  writeJsonResponse(response, HttpStatuses.Ok, null);
+}
+
+async function adoptPerson(request: Request, response: Response): Promise<void> {
+  const relativesIds: PersonRelativesIds = request.body;
+  const personModel = new PersonModel();
+  try {
+    await personModel.adopt(relativesIds);
+  } catch (errors) {
+    return writeJsonResponse(response, HttpStatuses.BadRequest, errors);
   }
   writeJsonResponse(response, HttpStatuses.Ok, null);
 }
@@ -35,8 +46,9 @@ function personRoutes(): Router {
   const routes = Router();
   routes.get('/:id', findPerson);
   routes.post('/', createPerson);
+  routes.post('/adopt', adoptPerson);
   routes.get('/', findAllPersons);
   return routes;
 }
 
-export { findAllPersons, findPerson, createPerson, personRoutes };
+export { findAllPersons, findPerson, createPerson, adoptPerson, personRoutes };
