@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import httpMocks, { MockRequest, MockResponse } from 'node-mocks-http';
 
+import { DbManager } from '../../database/db-manager';
 import { findAllPersons } from './person.routes';
 
 describe('Person routes handlers', () => {
@@ -16,6 +17,7 @@ describe('Person routes handlers', () => {
   });
 
   it('should return a list of persons', async () => {
+    spyOn(DbManager.prototype, 'executeQuery').and.returnValue({ rows: [] });
     findAllPersons(request, response);
     expect(response._getJSONData()).toEqual([]);
   });
