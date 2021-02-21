@@ -40,8 +40,10 @@ describe('Person routes handlers', () => {
       params: { id: 1 },
     });
     const modelSpy = spyOn(PersonModel.prototype, 'find').and.returnValue(testData[0]);
+    const relativesSpy = spyOn(PersonModel.prototype, 'findRelatives').and.returnValue(null);
     await findPerson(request, response);
     expect(modelSpy).toHaveBeenCalled();
+    expect(relativesSpy).toHaveBeenCalled();
     expect(response._getJSONData()).toEqual(JSON.parse(JSON.stringify(testData[0])));
   });
 

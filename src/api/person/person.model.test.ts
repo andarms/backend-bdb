@@ -41,7 +41,7 @@ describe('Person Model', () => {
   });
 
   it('should create person model from Api', async () => {
-    const managerSpy = spyOn(DbManager.prototype, 'executeQuery').and.callThrough();
+    const managerSpy = spyOn(DbManager.prototype, 'executeQuery').and.callFake(() => null);
     const person: Person = {
       id: 1,
       identification: '001',
