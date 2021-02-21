@@ -1,6 +1,6 @@
 # Project Backend
 
-![CircleCI](https://circleci.com/gh/andarms/programming-skills-bdb.svg?style=svg&circle-token=bc58e9fab641f2e5ff17baab33b45c3c9d3a716f)
+![CircleCI](https://circleci.com/gh/andarms/backend-bdb.svg?style=svg&circle-token=bc58e9fab641f2e5ff17baab33b45c3c9d3a716f)
 
 ## Run Project
 
