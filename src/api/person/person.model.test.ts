@@ -64,6 +64,7 @@ describe('Person Model', () => {
   });
 
   it('should return validation error', async () => {
+    const managerSpy = spyOn(DbManager.prototype, 'executeQuery').and.returnValue({ rows: [...testData] });
     const person: Person = { id: 999, identification: null, fullname: null, birth: null, gender: null };
     const errors = await model.validate(person);
     expect(errors.length).toBe(4);
