@@ -22,6 +22,12 @@ interface PersonRelatives {
   children: Person[];
 }
 
+interface PersonRelativesIds {
+  fatherId: number;
+  motherId: number;
+  childId: number;
+}
+
 class PersonModel {
   async finadAll(): Promise<Person[]> {
     const manager = new DbManager();
@@ -132,12 +138,59 @@ class PersonModel {
     if (!person.birth) {
       errors.push('field Birth date is required');
     }
-    const found = this.findByIdentification(person.identification);
+    const found = await this.findByIdentification(person.identification);
     if (found) {
       errors.push('Person already exist');
     }
     return errors;
   }
+
+  async adopt({ fatherId, motherId, childId }: PersonRelativesIds): Promise<boolean> {
+    const errors = await this.checkAdoption(fatherId, motherId, childId);
+    if (errors.length) {
+      throw errors;
+    }
+    const manager = new DbManager();
+    try {
+      manager.open();
+      await manager.executeQuery<number>(`insert into Children( childId, fatherId, motherId)  values ($1, $2, $3)`, [
+        childId,
+        fatherId,
+        motherId,
+      ]);
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    } finally {
+      manager.close();
+    }
+  }
+
+  async checkAdoption(fatherId: number, motherId: number, childId: number): Promise<string[]> {
+    const manager = new DbManager();
+    const errors: string[] = [];
+    try {
+      manager.open();
+      const childQuery = await manager.executeQuery<Person>('select * from Children where childId = $1', [childId]);
+      if (childQuery.rowCount > 0) {
+        return ['Child already has parents'];
+      }
+      const familyQuery = await manager.executeQuery<Person>(
+        'select * from Children where childId = $1 and fatherId = $2 and motherId = $3',
+        [childId, fatherId, motherId],
+      );
+      if (familyQuery.rowCount > 0) {
+        return ['Adoption already made'];
+      }
+      return [];
+    } catch (e) {
+      console.log(e);
+      return errors;
+    } finally {
+      manager.close();
+    }
+  }
 }
 
-export { Person, PersonRelatives, Genders, PersonModel };
+export { Person, PersonRelatives, Genders, PersonModel, PersonRelativesIds };
