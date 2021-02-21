@@ -10,6 +10,6 @@
 
 - run tests with `npm test`
 
-## why Postgres
+## why Postgres?
 
 it not common to use node with a SQl database like Postgres, but I don't know how to use REDIS or ElasticSearch and after a short search it's seem something that will take all the weekend just to understand and setup the right environment. That's is why I prefers to use something similar like Postgres

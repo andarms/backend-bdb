@@ -25,8 +25,8 @@ async function createPerson(request: Request, response: Response): Promise<void>
   const personModel = new PersonModel();
   try {
     await personModel.create(person);
-  } catch (error) {
-    return writeJsonResponse(response, HttpStatuses.BadRequest, error);
+  } catch (errors) {
+    return writeJsonResponse(response, HttpStatuses.BadRequest, errors);
   }
   writeJsonResponse(response, HttpStatuses.Ok, null);
 }

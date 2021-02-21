@@ -49,6 +49,26 @@ class PersonModel {
     }
   }
 
+  async findByIdentification(identification: string): Promise<Person> {
+    const manager = new DbManager();
+    try {
+      manager.open();
+      const data = await manager.executeQuery<Person>('select * from Persons where identification = $1', [
+        identification,
+      ]);
+      if (data.rows.length) {
+        const person: Person = data.rows.shift();
+        return new Promise((resolve) => resolve(person));
+      }
+      return null;
+    } catch (e) {
+      console.log(e);
+      return null;
+    } finally {
+      manager.close();
+    }
+  }
+
   async findRelatives(id: string | number): Promise<PersonRelatives> {
     const manager = new DbManager();
     try {
@@ -67,7 +87,7 @@ class PersonModel {
       );
       const father = fatherQuery.rows?.shift();
       const mother = motherQuery.rows?.shift();
-      const children = childrenQuery?.rows;
+      const children = childrenQuery?.rows.length ? childrenQuery.rows : null;
 
       return { father, mother, children };
     } catch (error) {
@@ -79,7 +99,7 @@ class PersonModel {
 
   async create(person: Person): Promise<number> {
     const manager = new DbManager();
-    const errors = this.validate(person);
+    const errors = await this.validate(person);
     if (errors.length) {
       throw errors;
     }
@@ -98,7 +118,7 @@ class PersonModel {
     }
   }
 
-  validate(person: Person): string[] {
+  async validate(person: Person): Promise<string[]> {
     const errors = [];
     if (!person.identification) {
       errors.push('field Identification is required');
@@ -112,7 +132,10 @@ class PersonModel {
     if (!person.birth) {
       errors.push('field Birth date is required');
     }
-
+    const found = this.findByIdentification(person.identification);
+    if (found) {
+      errors.push('Person already exist');
+    }
     return errors;
   }
 }

@@ -31,6 +31,14 @@ describe('Person Model', () => {
     expect(managerSpy).toHaveBeenCalled();
   });
 
+  it('should get person model from Api', async () => {
+    const identification = testData[0].identification;
+    const managerSpy = spyOn(DbManager.prototype, 'executeQuery').and.returnValue({ rows: [...testData] });
+    const data = await model.findByIdentification(identification);
+    expect(data.identification).toEqual(identification);
+    expect(managerSpy).toHaveBeenCalled();
+  });
+
   it('should get person model relatives from Api', async () => {
     const managerSpy = spyOn(DbManager.prototype, 'executeQuery').and.returnValue({ rows: [...testData] });
     const data = await model.findRelatives(1);
@@ -42,6 +50,7 @@ describe('Person Model', () => {
 
   it('should create person model from Api', async () => {
     const managerSpy = spyOn(DbManager.prototype, 'executeQuery').and.callFake(() => null);
+    const modelSpy = spyOn(PersonModel.prototype, 'findByIdentification').and.callFake(() => null);
     const person: Person = {
       id: 1,
       identification: '001',
@@ -50,12 +59,13 @@ describe('Person Model', () => {
       gender: Genders.Female,
     };
     await model.create(person);
+    expect(modelSpy).toHaveBeenCalled();
     expect(managerSpy).toHaveBeenCalled();
   });
 
   it('should return validation error', async () => {
     const person: Person = { id: 1, identification: null, fullname: null, birth: null, gender: null };
-    const errors = model.validate(person);
-    expect(errors.length).toBe(4);
+    const errors = await model.validate(person);
+    expect(errors.length).toBe(5);
   });
 });
