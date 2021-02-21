@@ -13,6 +13,9 @@ async function findPerson(request: Request, response: Response): Promise<void> {
   const id = request.params.id;
   const personModel = new PersonModel();
   const person = await personModel.find(id);
+  if (!person) {
+    return writeJsonResponse(response, HttpStatuses.NotFound, null);
+  }
   person.relatives = await personModel.findRelatives(id);
   writeJsonResponse(response, HttpStatuses.Ok, person);
 }
@@ -20,7 +23,11 @@ async function findPerson(request: Request, response: Response): Promise<void> {
 async function createPerson(request: Request, response: Response): Promise<void> {
   const person: Person = request.body;
   const personModel = new PersonModel();
-  await personModel.create(person);
+  try {
+    await personModel.create(person);
+  } catch (error) {
+    return writeJsonResponse(response, HttpStatuses.BadRequest, error);
+  }
   writeJsonResponse(response, HttpStatuses.Ok, null);
 }
 
@@ -32,4 +39,4 @@ function personRoutes(): Router {
   return routes;
 }
 
-export { findAllPersons, personRoutes };
+export { findAllPersons, findPerson, createPerson, personRoutes };

@@ -7,7 +7,7 @@ enum Genders {
 
 interface Person {
   id: number;
-  indentification: string;
+  identification: string;
   fullname: string;
   birth: Date;
   gender: Genders;
@@ -79,13 +79,41 @@ class PersonModel {
 
   async create(person: Person): Promise<number> {
     const manager = new DbManager();
-    manager.open();
-    const data = await manager.executeQuery<Person>(
-      `insert into Persons(identification, fullname, birth, gender)  values ($1, $2, $3, $4)`,
-      [person.indentification, person.fullname, person.birth, person.gender],
-    );
-    manager.close();
-    return data.rowCount;
+    const errors = this.validate(person);
+    if (errors.length) {
+      throw errors;
+    }
+    try {
+      manager.open();
+      const data = await manager.executeQuery<number>(
+        `insert into Persons(identification, fullname, birth, gender)  values ($1, $2, $3, $4)`,
+        [person.identification, person.fullname, person.birth, person.gender],
+      );
+
+      return data.rowCount;
+    } catch (error) {
+      console.log(error);
+    } finally {
+      manager.close();
+    }
+  }
+
+  validate(person: Person): string[] {
+    const errors = [];
+    if (!person.identification) {
+      errors.push('field Identification is required');
+    }
+    if (!person.fullname) {
+      errors.push('field Full Name is required');
+    }
+    if (!person.gender) {
+      errors.push('field Gender is required');
+    }
+    if (!person.birth) {
+      errors.push('field Birth date is required');
+    }
+
+    return errors;
   }
 }
 
